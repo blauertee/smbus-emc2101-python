@@ -1,5 +1,6 @@
 import smbus
 import time
+from typing import List, Tuple
 
 class Emc2101(object):
     MFG_ID_SMSC = 0x5D
@@ -86,6 +87,11 @@ class Emc2101(object):
     REG_MFGID = 0xFE  # Readonly, SMSC is 0x5D
     REG_REV = 0xFF  # Readonly, e.g. 0x01
 
+    
+    REG_LOOKUP_T = range(0x50, 0x5F, 2)
+    REG_LOOKUP_S = range(0x51, 0x5F + 1 , 2)
+    
+
     LUT_HYSTERESIS = 0x4F
     LUT_BASE = 0x50
 
@@ -122,4 +128,13 @@ class Emc2101(object):
     def dacMode(self, value):
         self._writeBool(Emc2101.REG_CONFIG, Emc2101.CONFIG_DAC, bool(value))
 
+    @property
+    def fanControlLookupTable(self):
+        return [(self._read(Emc2101.REG_LOOKUP_T[i]), self._read(Emc2101.REG_LOOKUP_T[i])) for i in range(8)]
 
+    @fanControlLookupTable.setter
+    def fanControlLookupTable(self, value: List[Tuple[int, int]]):
+        for i in range(len(value)):
+            x,y = value[i]
+            self._write(Emc2101.REG_LOOKUP_T[i], x)
+            self._write(Emc2101.REG_LOOKUP_S[i], y)

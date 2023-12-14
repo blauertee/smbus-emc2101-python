@@ -95,16 +95,18 @@ class Emc2101(object):
     LUT_HYSTERESIS = 0x4F
     LUT_BASE = 0x50
 
-    I2CADDRESS = 0x4C
-
-    def __init__(self, i2cbus):
+    def __init__(self, i2cbus, eeprom = False):
         self.BUS = smbus.SMBus(i2cbus)
-
+        if eeprom:
+            self.i2cAddress = 0x50
+        else:
+            self.i2cAddress = 0x4C
+            
     def _read(self, register_address):
-        return self.BUS.read_byte_data(Emc2101.I2CADDRESS, register_address)
+        return self.BUS.read_byte_data(self.i2cAdress, register_address)
     
     def _write(self, register_address, data_byte):
-        self.BUS.write_byte_data(Emc2101.I2CADDRESS, register_address, data_byte)
+        self.BUS.write_byte_data(self.i2cAdress, register_address, data_byte)
 
     def _writeBool(self, register_address, registermask, value):
         reg = self._read(register_address)

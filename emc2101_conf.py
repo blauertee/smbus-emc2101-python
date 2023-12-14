@@ -95,11 +95,18 @@ class Emc2101(object):
         self.BUS = smbus.SMBus(i2cbus)
 
     def _read(self, register_address):
-        return self.BUS.read_byte_data(self.I2CADDRESS, register_address)
+        return self.BUS.read_byte_data(Emc2101.I2CADDRESS, register_address)
     
     def _write(self, register_address, data_byte):
-        return self.BUS.write_byte_data(i2CADDRESS, register_address, data_byte)
+        self.BUS.write_byte_data(Emc2101.I2CADDRESS, register_address, data_byte)
 
+    def _writeBool(self, register_address, registermask, value):
+        reg = self._read(register_address)
+        if value:
+            self._write(register_address, reg | registermask)
+        else:
+            self._write(register_address, reg & ~registermask)
+    
     def close(self):
         self.BUS.close()
     
@@ -111,13 +118,8 @@ class Emc2101(object):
     def dacMode(self):
         return bool(self._read(Emc2101.REG_CONFIG) & Emc2101.CONFIG_DAC)
 
+    @dacMode.setter
+    def dacMode(self, value):
+        self._writeBool(Emc2101.REG_CONFIG, Emc2101.CONFIG_DAC, value)
 
 
-
-# Define the I2C bus number
-bus_number = 10
-
-emc = Emc2101(bus_number)
-print(emc.internalTemp)
-print(emc.dacMode)
-emc.close()

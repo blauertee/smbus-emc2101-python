@@ -120,6 +120,6 @@ class Emc2101(object):
 
     @dacMode.setter
     def dacMode(self, value):
-        self._writeBool(Emc2101.REG_CONFIG, Emc2101.CONFIG_DAC, value)
+        self._writeBool(Emc2101.REG_CONFIG, Emc2101.CONFIG_DAC, bool(value))
 
 
